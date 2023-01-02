@@ -1,0 +1,101 @@
+version: "3"
+services:
+  db:
+    image: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: projekt
+    volumes:
+      - db:/var/lib/mysql
+  api:
+    image: node:lts-alpine
+    build: api/.
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+    env_file: api/.env
+    environment:
+      - DB_NAME=projekt
+      - DB_USER=root
+      - DB_PASSWORD=secret
+      - DB_PORT=3306
+      - NODE_DOCKER_PORT=3001
+      - NODE_ENV=production 
+    volumes:
+      - ./api/:/home/app/
+      - /api/home/app/node_modules
+  db-3:
+    image: mysql:8.0
+    ports:
+      - 3308:3308
+    expose:
+      - 3308
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: projekt
+      MYSQL_TCP_PORT: 3308
+    volumes:
+      - db3:/var/lib/mysql
+  db-4:
+    image: mysql:8.0
+    ports:
+      - 3309:3309
+    expose:
+      - 3309
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: projekt
+      MYSQL_TCP_PORT: 3309
+    volumes:
+      - db4:/var/lib/mysql
+  api-4:
+    image: node:lts-alpine
+    build: api/.
+    depends_on:
+      - db-4
+    ports:
+      - "3003:3003"
+    env_file: api/.env
+    environment:
+      - DB_NAME=projekt
+      - DB_USER=root
+      - DB_PASSWORD=secret
+      - DB_PORT=3309
+      - NODE_DOCKER_PORT=3003
+      - NODE_ENV=production 
+    volumes:
+      - ./api/:/home/app/
+      - /api/home/app/node_modules
+      
+  api-3:
+    image: node:lts-alpine
+    build: api/.
+    depends_on:
+      - db-3
+    ports:
+      - "3002:3002"
+    env_file: api/.env
+    environment:
+      - DB_NAME=projekt
+      - DB_USER=root
+      - DB_PASSWORD=secret
+      - DB_PORT=3308
+      - NODE_DOCKER_PORT=3002
+      - NODE_ENV=production 
+    volumes:
+      - ./api/:/home/app/
+      - /api/home/app/node_modules
+volumes: 
+  db:
+  db2:
+  db3:
+  db4:
